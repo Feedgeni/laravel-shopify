@@ -1,16 +1,16 @@
 {
-    "name": "kudobuzz/laravel-shopify",
-    "description": "Laravel shopify package for kudobuzz users",
+    "name": "feedgeni/laravel-shopify",
+    "description": "Laravel shopify package for FeedGeni users",
     "license": "MIT",
     "authors": [
         {
-            "name": "kudobuzz"
+            "name": "FeedGeni"
         }
     ],
     "require": {
-        "php": ">=7.0.0",
+        "php": ">=7.4",
         "guzzlehttp/guzzle": "^6.2",
-        "illuminate/support": "^5.4"
+        "illuminate/support": "6.*"
     },
     "autoload": {
         "psr-4": {
