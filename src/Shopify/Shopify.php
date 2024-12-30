@@ -30,7 +30,7 @@ class Shopify
      */
     public function setShopUrl($shopUrl)
     {
-        $url = parse_url($shopUrl);
+        $url = parse_url((string) $shopUrl);
         $this->shopDomain = isset($url['host']) ? $url['host'] : $this->removeProtocol($shopUrl);
 
         return $this;
@@ -46,11 +46,11 @@ class Shopify
     {
         if (is_array($scope)) $scope = implode(",", $scope);
 
-        $url = "https://{$this->shopDomain}/admin/oauth/authorize?client_id={$this->key}&scope=" . urlencode($scope);
+        $url = "https://{$this->shopDomain}/admin/oauth/authorize?client_id={$this->key}&scope=" . urlencode((string) $scope);
         
-        if ($redirect_url != '') $url .= "&redirect_uri=" . urlencode($redirect_url);
+        if ($redirect_url != '') $url .= "&redirect_uri=" . urlencode((string) $redirect_url);
 
-        if ($nonce!='') $url .= "&state=" . urlencode($nonce);
+        if ($nonce!='') $url .= "&state=" . urlencode((string) $nonce);
         
         return $url;
     }
@@ -109,7 +109,7 @@ class Shopify
      */
     public function __call($method, $args)
     {
-        list($uri, $params) = [ltrim($args[0],"/"), $args[1] ?? []];
+        list($uri, $params) = [ltrim((string) $args[0],"/"), $args[1] ?? []];
         $response = $this->makeRequest($method, $uri, $params, $this->setXShopifyAccessToken());
 
         return (is_array($response)) ? $this->convertResponseToCollection($response) : $response;
@@ -124,11 +124,11 @@ class Shopify
     {
         $query = in_array($method, ['get','delete']) ? "query" : "json";
 
-        $rateLimit = explode("/", $this->getHeader("X-Shopify-Shop-Api-Call-Limit"));
+        $rateLimit = explode("/", (string) $this->getHeader("X-Shopify-Shop-Api-Call-Limit"));
 
         if($rateLimit[0] >= 38 ) sleep(15);
 
-        $response = $this->client->request(strtoupper($method), $this->baseUrl().$uri, [
+        $response = $this->client->request(strtoupper((string) $method), $this->baseUrl().$uri, [
                 'headers' => array_merge($headers, $this->requestHeaders),
                 $query => $params,
                 'timeout' => 120.0,
@@ -196,14 +196,14 @@ class Shopify
             return $key . '=' . $value;
         })->implode("&");
 
-        $calculatedHmac = hash_hmac('sha256', $params, $this->secret);
+        $calculatedHmac = hash_hmac('sha256', $params, (string) $this->secret);
 
         return hash_equals($hmac, $calculatedHmac);
     }
 
     public function verifyWebHook($data, $hmacHeader)
     {
-        $calculatedHmac = base64_encode(hash_hmac('sha256', $data, $this->secret, true));
+        $calculatedHmac = base64_encode(hash_hmac('sha256', (string) $data, (string) $this->secret, true));
 
         return ($hmacHeader == $calculatedHmac);
     }
@@ -252,14 +252,14 @@ class Shopify
 
     private function responseBody($response)
     {
-        return json_decode($response->getBody(), true);
+        return json_decode((string) $response->getBody(), true);
     }
 
     public function removeProtocol($url)
     {
         $disallowed = ['http://', 'https://','http//','ftp://','ftps://'];
         foreach ($disallowed as $d) {
-            if (strpos($url, $d) === 0) {
+            if (str_starts_with((string) $url, $d)) {
                 return str_replace($d, '', $url);
             }
         }

@@ -35,10 +35,7 @@ class ShopifyServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('shopify',function($app) 
-        {
-            return new Shopify(new Client);
-        });
+        $this->app->singleton('shopify',fn($app) => new Shopify(new Client));
     }
 
     /**
